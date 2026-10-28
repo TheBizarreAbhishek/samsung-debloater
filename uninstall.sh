@@ -28,7 +28,7 @@ restore_file() {
     local file="$1"
     [ -f "$file" ] || return 0
     echo "[*] Restoring from $file..." >> "$LOG_FILE" 2>/dev/null
-    while IFS= read -r pkg || [ -n "$pkg" ]; do
+    cat "$file" | while IFS= read -r pkg || [ -n "$pkg" ]; do
         case "$pkg" in
             \#*|"") continue ;;
         esac
@@ -41,7 +41,7 @@ restore_file() {
         elif pm install-existing "$pkg" >/dev/null 2>&1; then
             echo "  [✓] Restored (pm): $pkg" >> "$LOG_FILE" 2>/dev/null
         fi
-    done < "$file"
+    done
 }
 
 # 2. Restore all standard and backup sources
