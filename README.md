@@ -118,6 +118,30 @@ Edit these text files anytime using any file manager (no reboot needed):
 
 ---
 
+## 🔄 Uninstallation & Safe Stock Restore
+
+If you ever decide to remove the module, you have two seamless ways to restore all debloated packages back to 100% factory stock:
+
+### Method 1: KernelSU Action Button (Recommended - 1-Click Live Restore)
+1. Open **KernelSU Manager** $\rightarrow$ **Modules**.
+2. Tap the **Action (▶️)** button next to **Samsung Debloater**.
+3. Press **[Vol DOWN (-)]** when prompted.
+4. Within 2 seconds, all 88+ debloated apps will be restored live without needing a reboot!
+5. Now tap **Uninstall (Trash icon)** on the module and reboot your phone normally. Clean, zero missing apps, and zero leftovers!
+
+### Method 2: Via Termux CLI
+Before removing the module, open Termux and run:
+```bash
+su -c debloater reset
+```
+All stock apps will be restored immediately. Then uninstall the module from KernelSU / Magisk / APatch and reboot.
+
+### Method 3: Direct Removal (Automated Background Restore)
+If you directly uninstall the module from your root manager and reboot, the module's built-in `uninstall.sh` automatically queues and restores all packages for User 0, saving a detailed execution log to:
+`/sdcard/SamsungDebloater/uninstall.log`
+
+---
+
 ## 👨‍💻 Author
 
 * **Abhishek Babbu** ([@TheBizarreAbhishek](https://github.com/TheBizarreAbhishek))
