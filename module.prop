@@ -1,0 +1,6 @@
+id=samsung_debloater
+name=Samsung Debloater
+version=v1.0
+versionCode=100
+author=Abhishek Babbu
+description=Tells Samsung & Google's background trackers to fuck off. Saves battery & kills ads. Type 'debloater --help' in Termux.

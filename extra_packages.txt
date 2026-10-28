@@ -1,0 +1,52 @@
+# =========================================================
+# Samsung Debloater - Extra Aggressive Battery Savers
+# (Optional: Prompted via Volume Keys during Installation)
+# Author: Abhishek Babbu
+# =========================================================
+
+# --- S1: Bixby Suite (Voice Assistant & Mic Wakeup Daemon) ---
+com.samsung.android.bixby.wakeup
+com.samsung.android.bixby.agent
+com.samsung.android.bixbyvision.framework
+com.samsung.android.visionintelligence
+
+# --- S2: Samsung Digital Wellbeing (Continuous SQLite Disk I/O) ---
+com.samsung.android.forest
+
+# --- S3: Samsung Customization Service (Behavior & Search Profiler) ---
+com.sec.android.app.personalization
+
+# --- S4: Smart Stay & Smart Face (Periodic Camera Polling) ---
+com.samsung.android.smartface
+com.samsung.android.smartface.overlay
+
+# --- S5: Always On Display (AOD Controller) ---
+com.samsung.android.app.aodservice
+
+# --- S6: Edge Panels & Clipboard Edge ---
+com.samsung.android.app.clipboardedge
+com.samsung.android.app.taskedge
+com.samsung.android.service.peoplestripe
+
+# --- S7: Smart Call & Visual ARS (Hiya Spam Network Lookup) ---
+com.samsung.android.smartcallprovider
+com.samsung.android.visualars
+
+# --- S8: Gallery AI Media Indexer ---
+com.samsung.cmh
+
+# --- G1: Google Assistant & "Hey Google" / Gemini ---
+com.android.hotwordenrollment.okgoogle
+com.android.hotwordenrollment.xgoogle
+com.google.android.googlequicksearchbox
+com.google.android.apps.bard
+
+# --- G2: Android System Intelligence (Real-time AI Indexer) ---
+com.google.android.as
+com.google.android.as.oss
+
+# --- G5: Google Device Health Services (Turbo Analytics) ---
+com.google.android.apps.turbo
+
+# --- G6: Google Photos Cloud Backup ---
+com.google.android.apps.photos

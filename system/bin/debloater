@@ -1,0 +1,324 @@
+#!/system/bin/sh
+# =========================================================
+# Samsung Debloater - CLI & Interactive Manager
+# Author: Abhishek Babbu
+# =========================================================
+
+CONFIG_DIR="/sdcard/SamsungDebloater"
+WHITELIST="$CONFIG_DIR/whitelist.txt"
+BLACKLIST="$CONFIG_DIR/blacklist.txt"
+MODDIR="/data/adb/modules/samsung_debloater"
+
+# Ensure config directory exists
+mkdir -p "$CONFIG_DIR" 2>/dev/null
+
+# Display CLI Help & Usage
+show_help() {
+    cat << 'EOF'
+===============================================================
+               S A M S U N G   D E B L O A T E R               
+                      Author: Abhishek Babbu                   
+===============================================================
+Tells Samsung & Google's background trackers to fuck off.
+Saves battery & kills ads.
+
+USAGE:
+  debloater [COMMAND] [OPTIONS]
+  (Run 'debloater' without arguments to open Interactive Menu)
+
+COMMANDS:
+  menu                  Open the interactive terminal menu
+  restore <pkg_name>    Reinstall/restore an app (install-existing)
+  remove <pkg_name>     Uninstall/debloat an app (--user 0)
+  sync                  Re-apply debloat & sync with whitelist
+  status                Show total debloated vs active apps
+  reset                 Restore ALL apps (Full Stock Reset)
+  help, --help, -h      Show this help information
+
+EXAMPLES:
+  debloater restore com.google.android.apps.photos
+  debloater restore com.samsung.android.app.aodservice
+  debloater remove com.samsung.android.bixby.wakeup
+  debloater sync
+  debloater status
+
+USER CONFIG FILES (Edit anytime via any file manager):
+  📁 /sdcard/SamsungDebloater/
+     ├── whitelist.txt  (Add package names here to protect/restore)
+     └── blacklist.txt  (Add custom package names here to debloat)
+
+NOTE: In Termux, run with root: 'su -c debloater'
+===============================================================
+EOF
+}
+
+# If help is requested, show immediately even if non-root
+case "$1" in
+    help|--help|-h)
+        show_help
+        exit 0
+        ;;
+esac
+
+# Ensure running with root privileges (UID 0)
+if [ "$(id -u)" != "0" ]; then
+    if command -v su >/dev/null 2>&1; then
+        exec su -c "$0" "$@"
+    else
+        echo "[!] Root required: Please run as 'su -c debloater'"
+        exit 1
+    fi
+fi
+
+# Check if a package is in whitelist
+is_whitelisted() {
+    local target="$1"
+    [ -f "$WHITELIST" ] || return 1
+    while IFS= read -r line || [ -n "$line" ]; do
+        case "$line" in
+            \#*|"") continue ;;
+        esac
+        line=$(echo "$line" | tr -d ' \r\n')
+        if [ "$line" = "$target" ]; then
+            return 0
+        fi
+    done < "$WHITELIST"
+    return 1
+}
+
+# Restore package (install-existing)
+do_restore() {
+    local p="$1"
+    [ -z "$p" ] && return
+    echo "[+] Restoring (installing): $p"
+    if cmd package install-existing "$p" >/dev/null 2>&1; then
+        echo "    [✓] Successfully restored: $p"
+    else
+        echo "    [!] Package could not be restored (or not found in ROM): $p"
+    fi
+}
+
+# Debloat package (uninstall --user 0)
+do_remove() {
+    local p="$1"
+    [ -z "$p" ] && return
+    if is_whitelisted "$p"; then
+        echo "    [-] Skipped (in whitelist.txt): $p"
+        return
+    fi
+    echo "[-] Removing (debloating): $p"
+    if pm uninstall --user 0 "$p" >/dev/null 2>&1; then
+        echo "    [✓] Successfully removed: $p"
+    else
+        echo "    [!] Already removed or not found: $p"
+    fi
+}
+
+# Restore ALL packages
+restore_all() {
+    echo "================================================="
+    echo "  Restoring ALL apps (Resetting to Stock)...     "
+    echo "================================================="
+    for f in "$MODDIR/packages.txt" "$MODDIR/extra_packages.txt"; do
+        if [ -f "$f" ]; then
+            while IFS= read -r pkg || [ -n "$pkg" ]; do
+                case "$pkg" in
+                    \#*|"") continue ;;
+                esac
+                cmd package install-existing "$pkg" >/dev/null 2>&1
+            done < "$f"
+        fi
+    done
+    echo "[✓] All apps restored successfully!"
+}
+
+# Re-apply debloat (Default list + Blacklist, respecting Whitelist)
+apply_debloat() {
+    echo "================================================="
+    echo "  Applying Debloat (Respecting Whitelist)...     "
+    echo "================================================="
+    local count=0
+
+    # Process default packages
+    if [ -f "$MODDIR/packages.txt" ]; then
+        while IFS= read -r pkg || [ -n "$pkg" ]; do
+            case "$pkg" in
+                \#*|"") continue ;;
+            esac
+            if is_whitelisted "$pkg"; then
+                cmd package install-existing "$pkg" >/dev/null 2>&1
+                continue
+            fi
+            if pm list packages --user 0 | grep -q "^package:${pkg}$"; then
+                if pm uninstall --user 0 "$pkg" >/dev/null 2>&1; then
+                    echo "  [-] Removed: $pkg"
+                    count=$((count + 1))
+                fi
+            fi
+        done < "$MODDIR/packages.txt"
+    fi
+
+    # Process extra packages if enabled
+    if [ -f "$MODDIR/extra_enabled" ] && [ -f "$MODDIR/extra_packages.txt" ]; then
+        while IFS= read -r pkg || [ -n "$pkg" ]; do
+            case "$pkg" in
+                \#*|"") continue ;;
+            esac
+            if is_whitelisted "$pkg"; then
+                cmd package install-existing "$pkg" >/dev/null 2>&1
+                continue
+            fi
+            if pm list packages --user 0 | grep -q "^package:${pkg}$"; then
+                if pm uninstall --user 0 "$pkg" >/dev/null 2>&1; then
+                    echo "  [-] Extra Removed: $pkg"
+                    count=$((count + 1))
+                fi
+            fi
+        done < "$MODDIR/extra_packages.txt"
+    fi
+
+    # Process user blacklist
+    if [ -f "$BLACKLIST" ]; then
+        while IFS= read -r pkg || [ -n "$pkg" ]; do
+            case "$pkg" in
+                \#*|"") continue ;;
+            esac
+            if is_whitelisted "$pkg"; then
+                continue
+            fi
+            if pm list packages --user 0 | grep -q "^package:${pkg}$"; then
+                if pm uninstall --user 0 "$pkg" >/dev/null 2>&1; then
+                    echo "  [-] Blacklist Removed: $pkg"
+                    count=$((count + 1))
+                fi
+            fi
+        done < "$BLACKLIST"
+    fi
+
+    echo "[✓] Debloat finished! $count packages handled."
+}
+
+# Print status summary
+show_status() {
+    echo "================================================="
+    echo "  S A M S U N G   D E B L O A T E R   S T A T U S"
+    echo "================================================="
+    local total=0
+    local removed=0
+    local active=0
+
+    if [ -f "$MODDIR/packages.txt" ]; then
+        while IFS= read -r pkg || [ -n "$pkg" ]; do
+            case "$pkg" in
+                \#*|"") continue ;;
+            esac
+            total=$((total + 1))
+            if pm list packages --user 0 | grep -q "^package:${pkg}$"; then
+                active=$((active + 1))
+            else
+                removed=$((removed + 1))
+            fi
+        done < "$MODDIR/packages.txt"
+    fi
+
+    echo "  * Total Default List: $total"
+    echo "  * Currently Debloated: $removed"
+    echo "  * Currently Active:   $active"
+    if [ -f "$MODDIR/extra_enabled" ]; then
+        echo "  * Extra Aggressive:   ENABLED"
+    else
+        echo "  * Extra Aggressive:   DISABLED"
+    fi
+    echo "  * Whitelist File:     $WHITELIST"
+    echo "  * Blacklist File:     $BLACKLIST"
+    echo "================================================="
+}
+
+# Interactive Menu
+show_menu() {
+    while true; do
+        echo ""
+        echo "================================================="
+        echo "       S A M S U N G   D E B L O A T E R         "
+        echo "             Author: Abhishek Babbu              "
+        echo "================================================="
+        echo " [1] Restore a specific app (Install-existing)"
+        echo " [2] Debloat a specific app (Uninstall)"
+        echo " [3] Re-apply Debloat (Sync with Whitelist)"
+        echo " [4] Restore ALL apps (Full Stock Reset)"
+        echo " [5] Show Debloat Status"
+        echo " [0] Exit"
+        echo "================================================="
+        printf " Enter choice [0-5]: "
+        read -r choice
+        case "$choice" in
+            1)
+                echo ""
+                printf " Enter package name to restore (e.g. com.google.android.apps.photos): "
+                read -r ppkg
+                [ -n "$ppkg" ] && do_restore "$ppkg"
+                ;;
+            2)
+                echo ""
+                printf " Enter package name to remove (e.g. com.samsung.android.bixby.wakeup): "
+                read -r rpkg
+                [ -n "$rpkg" ] && do_remove "$rpkg"
+                ;;
+            3)
+                apply_debloat
+                ;;
+            4)
+                restore_all
+                ;;
+            5)
+                show_status
+                ;;
+            0|q|exit)
+                echo "Goodbye!"
+                break
+                ;;
+            *)
+                echo "Invalid option!"
+                ;;
+        esac
+    done
+}
+
+# Command Line Dispatcher
+case "$1" in
+    help|--help|-h)
+        show_help
+        ;;
+    restore|install)
+        if [ -n "$2" ]; then
+            do_restore "$2"
+        else
+            echo "Usage: debloater restore <package_name>"
+            echo "Run 'debloater --help' to see examples."
+        fi
+        ;;
+    remove|uninstall|debloat)
+        if [ -n "$2" ]; then
+            do_remove "$2"
+        else
+            echo "Usage: debloater remove <package_name>"
+            echo "Run 'debloater --help' to see examples."
+        fi
+        ;;
+    sync|apply)
+        apply_debloat
+        ;;
+    reset|restore-all)
+        restore_all
+        ;;
+    status)
+        show_status
+        ;;
+    menu|"")
+        show_menu
+        ;;
+    *)
+        echo "Unknown command: $1"
+        echo "Run 'debloater --help' to see available options."
+        ;;
+esac

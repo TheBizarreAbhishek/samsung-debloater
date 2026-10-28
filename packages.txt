@@ -1,0 +1,117 @@
+# =========================================================
+# Samsung Ecosystem Safe Debloat List
+# Author: Abhishek Babbu
+# =========================================================
+
+# --- 1. Continuous Background Logging & Telemetry ---
+com.samsung.logwriter
+com.sec.imslogger
+com.samsung.slsi.telephony.silentlogging
+com.samsung.android.dqagent
+com.sec.android.diagmonagent
+com.samsung.android.scpm
+com.samsung.android.sdm.config
+com.sec.android.soagent
+com.wssyncmldm
+com.samsung.oda.service
+com.samsung.ipservice
+com.samsung.attribution
+com.sec.location.nsflp2
+com.samsung.android.networkdiagnostic
+com.samsung.android.knox.analytics.uploader
+com.samsung.android.voc
+
+# --- 2. Continuous Background Geofence & Location Analytics ---
+com.samsung.android.ipsgeofence
+com.samsung.android.mocca
+com.samsung.android.mapsagent
+
+# --- 3. Background Profilers & AI Habit Analyzers (Heavy CPU & RAM) ---
+com.samsung.android.rubin.app
+com.samsung.android.smartsuggestions
+com.samsung.faceservice
+com.samsung.storyservice
+
+# --- 4. Ad, Marketing & App Promoters ---
+com.aura.oobe.samsung
+com.mygalaxy
+com.mygalaxy.service
+com.opera.max.oem
+com.samsung.discover
+com.samsung.discover.sep
+com.samsung.ecomm.global.in
+com.sec.android.app.billing
+com.facebook.appmanager
+com.facebook.services
+com.facebook.system
+com.sec.spp.push
+com.samsung.mfcontents
+
+# --- 5. Google Ad, Location History & Background Services ---
+com.google.android.adservices.api
+com.google.mainline.adservices
+com.google.mainline.telemetry
+com.google.android.ondevicepersonalization.services
+com.google.android.federatedcompute
+com.google.android.feedback
+com.google.android.partnersetup
+com.google.android.gms.location.history
+com.google.android.projection.gearhead
+com.google.ar.core
+com.google.android.printservice.recommendation
+
+# --- 6. Unused Samsung Feature Bloat ---
+com.samsung.android.kidsinstaller
+com.sec.android.app.kidshome
+com.samsung.android.aremoji
+com.samsung.android.aremojieditor
+com.sec.android.mimage.avatarstickers
+com.samsung.android.stickercenter
+com.samsung.android.dynamiclock
+com.samsung.android.app.parentalcare
+
+# --- 7. Unused Factory Test Daemons ---
+com.sec.android.app.factorykeystring
+com.sec.android.app.hwmoduletest
+com.sec.android.app.wlantest
+com.sec.android.app.servicemodeapp
+com.sec.android.RilServiceModeApp
+com.sec.facatfunction
+com.sec.factory.camera
+com.sec.bcservice
+com.sec.android.app.parser
+
+# --- 8. Knox e-Fuse Blown Inactive Daemons (Enterprise MDM, McAfee & Broken Pass) ---
+com.samsung.klmsagent
+com.sec.enterprise.knox.cloudmdm.smdms
+com.samsung.android.knox.kpecore
+com.samsung.android.sm.devicesecurity
+com.samsung.android.samsungpass
+com.samsung.android.samsungpassautofill
+
+# --- 9. Game Optimizing Service (GOS & Game Hub) ---
+com.samsung.android.game.gos
+com.samsung.android.game.gamehome
+com.samsung.android.game.gametools
+
+# --- 10. Data Migration & Smart Switch Daemons ---
+com.sec.android.easyMover
+com.sec.android.easyMover.Agent
+com.samsung.android.smartswitchassistant
+
+# --- 11. Samsung Offline TTS Voices & Language Packs ---
+com.samsung.SMT
+com.samsung.SMT.lang_de_de_f00
+com.samsung.SMT.lang_en_gb_f00
+com.samsung.SMT.lang_en_us_l03
+com.samsung.SMT.lang_es_es_f00
+com.samsung.SMT.lang_es_mx_f00
+com.samsung.SMT.lang_es_us_f00
+com.samsung.SMT.lang_fr_fr_f00
+com.samsung.SMT.lang_hi_in_f00
+com.samsung.SMT.lang_it_it_f00
+com.samsung.SMT.lang_pl_pl_f00
+com.samsung.SMT.lang_pt_br_f00
+com.samsung.SMT.lang_ru_ru_f00
+com.samsung.SMT.lang_th_th_f00
+com.samsung.SMT.lang_vi_vn_f00
