@@ -47,6 +47,8 @@ fi
 # Copy permanent package backup lists for fail-safe uninstallation
 cp -f "$MODPATH/packages.txt" "$CONFIG_DIR/packages_backup.txt" 2>/dev/null
 cp -f "$MODPATH/extra_packages.txt" "$CONFIG_DIR/extra_packages_backup.txt" 2>/dev/null
+cat "$MODPATH/packages.txt" "$MODPATH/extra_packages.txt" > /data/adb/samsung_debloat_packages.txt 2>/dev/null
+chmod 644 /data/adb/samsung_debloat_packages.txt 2>/dev/null
 
 is_whitelisted() {
     local target="$1"
