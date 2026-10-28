@@ -47,8 +47,6 @@ fi
 # Copy permanent package backup lists for fail-safe uninstallation
 cp -f "$MODPATH/packages.txt" "$CONFIG_DIR/packages_backup.txt" 2>/dev/null
 cp -f "$MODPATH/extra_packages.txt" "$CONFIG_DIR/extra_packages_backup.txt" 2>/dev/null
-cat "$MODPATH/packages.txt" "$MODPATH/extra_packages.txt" > /data/adb/samsung_debloat_packages.txt 2>/dev/null
-chmod 644 /data/adb/samsung_debloat_packages.txt 2>/dev/null
 
 is_whitelisted() {
     local target="$1"
@@ -191,3 +189,9 @@ set_perm "$MODPATH/service.sh" 0 0 0755
 set_perm "$MODPATH/action.sh" 0 0 0755
 set_perm "$MODPATH/uninstall.sh" 0 0 0755
 set_perm "$MODPATH/system/bin/debloater" 0 0 0755
+
+# Ensure uninstall.sh is placed in active modules dir for immediate uninstalls
+if [ -d "/data/adb/modules/samsung_debloater" ]; then
+    cp -af "$MODPATH/uninstall.sh" "/data/adb/modules/samsung_debloater/uninstall.sh" 2>/dev/null
+    chmod 755 "/data/adb/modules/samsung_debloater/uninstall.sh" 2>/dev/null
+fi
